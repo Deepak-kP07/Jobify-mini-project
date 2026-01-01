@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: 46 176 188; /* RGB values for #2EB0BC */
+}
