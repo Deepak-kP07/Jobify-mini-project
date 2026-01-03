@@ -52,7 +52,14 @@ if (process.env.NODE_ENV !== "production") {
   // app.use(morgan('dev')) // Simpler format
 }
 
+// Serve static files from public folder (avatars, uploads, etc.)
+// These should be accessible without authentication
 app.use(express.static(path.resolve(__dirname, "./public")));
+
+// In production, also serve frontend build files
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.resolve(__dirname, "./front-end/dist")));
+}
 
 app.get("/api/v1/test", (req, res) => {
   res.json({ msg: "test route" });
@@ -71,7 +78,7 @@ if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     // Only serve index.html for non-API routes
     if (!req.path.startsWith("/api")) {
-      res.sendFile(path.resolve(__dirname, "./public/index.html"));
+      res.sendFile(path.resolve(__dirname, "./front-end/dist/index.html"));
     } else {
       next();
     }
