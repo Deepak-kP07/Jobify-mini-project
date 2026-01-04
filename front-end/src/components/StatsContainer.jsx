@@ -1,4 +1,4 @@
-import StatItem from "./statItem";
+import StatItem from "./StatItem";
 import { Briefcase, CalendarCheck, Ban } from "lucide-react";
 
 export default function StatsContainer({ defaultStats }) {

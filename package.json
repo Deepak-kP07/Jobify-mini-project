@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
+    "start:prod": "NODE_ENV=production node server.js",
+    "build": "cd front-end && npm run build",
+    "build:prod": "npm run build && NODE_ENV=production npm start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "setup-project": "npm i && cd front-end && npm i",
     "frontend": "cd front-end && npm run dev",
