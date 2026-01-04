@@ -1,0 +1,16 @@
+# Simple GitLab CI/CD Pipeline for Jobify
+
+stages:
+  - build
+
+build:
+  stage: build
+  image: node:20
+  script:
+    - npm install
+    - cd front-end && npm install
+    - cd .. && npm run build
+  only:
+    - main
+    - master
+    - merge_requests
