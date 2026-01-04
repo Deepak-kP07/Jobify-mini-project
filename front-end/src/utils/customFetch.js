@@ -12,19 +12,26 @@ import axios from "axios";
 const getBaseURL = () => {
   // Priority 1: Explicitly set environment variable (build-time)
   if (import.meta.env.VITE_API_URL) {
+    console.log("✅ Using VITE_API_URL from env:", import.meta.env.VITE_API_URL);
     return import.meta.env.VITE_API_URL;
   }
 
   // Priority 2: Runtime detection based on current domain
   const hostname = window.location.hostname;
+  const origin = window.location.origin;
+
+  console.log("🔍 Runtime Detection - Hostname:", hostname);
+  console.log("🔍 Runtime Detection - Origin:", origin);
 
   // If running on localhost, use localhost API
   if (hostname === "localhost" || hostname === "127.0.0.1") {
+    console.log("🏠 Detected localhost - using localhost API");
     return "http://localhost:5200/api/v1";
   }
 
   // Production: Use relative URL (same domain)
   // Since frontend and backend are on same Render service, use relative URL
+  console.log("🌐 Detected production - using relative URL");
   return "/api/v1";
 };
 
