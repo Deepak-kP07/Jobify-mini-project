@@ -12,7 +12,10 @@ import axios from "axios";
 const getBaseURL = () => {
   // Priority 1: Explicitly set environment variable (build-time)
   if (import.meta.env.VITE_API_URL) {
-    console.log("✅ Using VITE_API_URL from env:", import.meta.env.VITE_API_URL);
+    console.log(
+      "✅ Using VITE_API_URL from env:",
+      import.meta.env.VITE_API_URL
+    );
     return import.meta.env.VITE_API_URL;
   }
 
