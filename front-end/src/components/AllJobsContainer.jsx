@@ -1,4 +1,4 @@
-import Job from "./job";
+import Job from "./Job";
 import { Briefcase } from "lucide-react";
 import PageBtnContainer from "./PageBtnContainer";
 
