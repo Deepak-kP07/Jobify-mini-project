@@ -1,9 +1,16 @@
 
 import main from "../assets/images/main.svg";
 import { Link } from "react-router-dom";
-import Logo from "../components/Logo"; 
+import Logo from "../components/Logo";
+import { useEffect } from "react";
 
 export default function Landing() {
+  useEffect(() => {
+    console.log("🏠 Landing Page Loaded");
+    console.log("📍 Current URL:", window.location.href);
+    console.log("🌐 Hostname:", window.location.hostname);
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col">
       {/* Navbar */}
