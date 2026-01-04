@@ -1,5 +1,5 @@
 import { useLoaderData } from "react-router-dom";
-import StatItem from "../components/statItem";
+import StatItem from "../components/StatItem";
 import { Users, Briefcase, Shield, TrendingUp } from "lucide-react";
 
 export default function Admin() {
