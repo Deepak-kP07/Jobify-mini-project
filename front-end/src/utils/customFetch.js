@@ -1,24 +1,19 @@
 import axios from "axios";
 
-// Detect if we're in production (deployed) or development
-// In production: use relative URL (same domain)
-// In development: use localhost
-const getBaseURL = () => {
-  // If explicitly set via environment variable, use it
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  // Check if we're running on localhost (development)
-  const isLocalhost =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1";
-
-  // If localhost, use localhost API, otherwise use relative URL
-  return isLocalhost ? "http://localhost:5200/api/v1" : "/api/v1";
-};
-
-const baseURL = getBaseURL();
+/**
+ * API Base URL Configuration
+ *
+ * Environment Variable: VITE_API_URL
+ *
+ * Development (local):
+ *   - Leave VITE_API_URL unset
+ *   - Defaults to: http://localhost:5200/api/v1
+ *
+ * Production (Render):
+ *   - Set VITE_API_URL=https://jobify-h3ys.onrender.com/api/v1
+ *   - Or use relative URL: VITE_API_URL=/api/v1 (if same domain)
+ */
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5200/api/v1";
 
 export default axios.create({
   baseURL,
