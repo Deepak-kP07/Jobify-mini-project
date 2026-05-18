@@ -10,6 +10,13 @@ export default function Login() {
   const actionData = useActionData();
   const isSubmitting = navigation.state === "submitting";
 
+  // Debug: Log on login page load
+  useEffect(() => {
+    console.log("🔐 Login Page Loaded");
+    console.log("📍 Current URL:", window.location.href);
+    console.log("🌐 Hostname:", window.location.hostname);
+  }, []);
+
   // Show toast notifications
   useEffect(() => {
     if (actionData?.success) {

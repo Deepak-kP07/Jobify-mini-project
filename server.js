@@ -24,6 +24,7 @@ cloudinary.config({
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import path from "path";
+import { existsSync } from "fs";
 
 // const jobs = [
 //   {id :nanoid(10) , company : 'apple' , position: 'front-end developer'},
@@ -35,9 +36,22 @@ import { errorHandlingMiddleware } from "./middlewares/errorHandlingMiddleware.j
 import { authenticateUser } from "./middlewares/authMiddleware.js";
 
 const app = express();
+const corsOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin(origin, callback) {
+      // Same-origin requests (e.g. /api/v1 on Render) have no Origin header
+      if (!origin || corsOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
   })
 );
@@ -46,8 +60,20 @@ app.use(express.json()); // now my app can handle JSON requests!
 app.use(cookieParser());
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const distPath = path.resolve(__dirname, "./front-end/dist");
+const distIndexPath = path.resolve(distPath, "index.html");
+const publicIndexPath = path.resolve(__dirname, "./public/index.html");
 
-if (process.env.NODE_ENV !== "production") {
+const resolveSpaIndex = () => {
+  if (existsSync(distIndexPath)) return distIndexPath;
+  if (existsSync(publicIndexPath)) return publicIndexPath;
+  return null;
+};
+
+const isProduction =
+  process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+
+if (!isProduction) {
   app.use(morgan("dev")); // More detailed logging
   // app.use(morgan('dev')) // Simpler format
 }
@@ -56,9 +82,9 @@ if (process.env.NODE_ENV !== "production") {
 // These should be accessible without authentication
 app.use(express.static(path.resolve(__dirname, "./public")));
 
-// In production, also serve frontend build files
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.resolve(__dirname, "./front-end/dist")));
+// Serve Vite build assets when dist exists (Render / production)
+if (existsSync(distPath)) {
+  app.use(express.static(distPath));
 }
 
 app.get("/api/v1/test", (req, res) => {
@@ -69,21 +95,19 @@ app.use("/api/v1/jobs", authenticateUser, jobRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", authenticateUser, userRoutes);
 
-// Error handling middleware should be at the end (before catch-all)
-app.use(errorHandlingMiddleware);
+// SPA fallback: React Router paths like /login must return index.html
+// (Without this, only "/" works when public/index.html exists — /login returns 404)
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
 
-// Catch-all route: serve frontend for any non-API routes (only in production)
-// In development, Vite dev server handles routing
-if (process.env.NODE_ENV === "production") {
-  app.use((req, res, next) => {
-    // Only serve index.html for non-API routes
-    if (!req.path.startsWith("/api")) {
-      res.sendFile(path.resolve(__dirname, "./front-end/dist/index.html"));
-    } else {
-      next();
-    }
-  });
-}
+  const spaIndex = resolveSpaIndex();
+  if (spaIndex && (req.method === "GET" || req.method === "HEAD")) {
+    return res.sendFile(spaIndex);
+  }
+  next();
+});
+
+app.use(errorHandlingMiddleware);
 
 try {
   const port = process.env.PORT || 5200;

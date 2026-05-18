@@ -1,10 +1,19 @@
 import { Outlet, useLoaderData } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import { useEffect } from "react";
 
 export default function DashboardLayout() {
   const data = useLoaderData();
   const user = data?.user || null;
+
+  // Debug: Log after successful login
+  useEffect(() => {
+    console.log("✅ Dashboard Loaded - User Logged In");
+    console.log("👤 User Data:", user);
+    console.log("📍 Current URL:", window.location.href);
+    console.log("🌐 Hostname:", window.location.hostname);
+  }, [user]);
 
   return (
     <>
