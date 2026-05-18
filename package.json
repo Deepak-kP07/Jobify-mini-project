@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "NODE_ENV=production node server.js",
     "start:prod": "NODE_ENV=production node server.js",
     "build": "cd front-end && npm run build",
     "build:prod": "npm run build && NODE_ENV=production npm start",
