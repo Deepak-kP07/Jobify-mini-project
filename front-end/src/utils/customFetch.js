@@ -9,41 +9,32 @@ import axios from "axios";
  * Development: http://localhost:5200/api/v1
  * Production: https://jobify-h3ys.onrender.com/api/v1 (or relative /api/v1)
  */
+const isLocalHost = (hostname) =>
+  hostname === "localhost" || hostname === "127.0.0.1";
+
+const isLoopbackApiUrl = (url) =>
+  typeof url === "string" &&
+  (url.includes("localhost") || url.includes("127.0.0.1"));
+
 const getBaseURL = () => {
-  // Priority 1: Explicitly set environment variable (build-time)
-  if (import.meta.env.VITE_API_URL) {
-    console.log(
-      "✅ Using VITE_API_URL from env:",
-      import.meta.env.VITE_API_URL
-    );
-    return import.meta.env.VITE_API_URL;
+  const hostname = window.location.hostname;
+  const onLocalDev = isLocalHost(hostname);
+
+  // VITE_API_URL is build-time only — ignore localhost URL when app runs on Render/production
+  const viteApiUrl = import.meta.env.VITE_API_URL;
+  if (viteApiUrl && !(isLoopbackApiUrl(viteApiUrl) && !onLocalDev)) {
+    return viteApiUrl;
   }
 
-  // Priority 2: Runtime detection based on current domain
-  const hostname = window.location.hostname;
-  const origin = window.location.origin;
-
-  console.log("🔍 Runtime Detection - Hostname:", hostname);
-  console.log("🔍 Runtime Detection - Origin:", origin);
-
-  // If running on localhost, use localhost API
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
-    console.log("🏠 Detected localhost - using localhost API");
+  if (onLocalDev) {
     return "http://localhost:5200/api/v1";
   }
 
-  // Production: Use relative URL (same domain)
-  // Since frontend and backend are on same Render service, use relative URL
-  console.log("🌐 Detected production - using relative URL");
+  // Same Render service serves API + SPA — relative path avoids CORS
   return "/api/v1";
 };
 
 const baseURL = getBaseURL();
-
-// Debug: Log API base URL (remove in production if needed)
-console.log("🔗 API Base URL:", baseURL);
-console.log("🌐 Current Hostname:", window.location.hostname);
-console.log("🔧 VITE_API_URL:", import.meta.env.VITE_API_URL || "not set");
 
 export default axios.create({
   baseURL,

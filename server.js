@@ -36,9 +36,22 @@ import { errorHandlingMiddleware } from "./middlewares/errorHandlingMiddleware.j
 import { authenticateUser } from "./middlewares/authMiddleware.js";
 
 const app = express();
+const corsOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin(origin, callback) {
+      // Same-origin requests (e.g. /api/v1 on Render) have no Origin header
+      if (!origin || corsOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
   })
 );
